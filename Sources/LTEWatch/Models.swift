@@ -70,6 +70,12 @@ struct SignalScale {
         }
     }
 
+    /// Legend labels for the excellent, good and poor bands, e.g. "Excellent ≥ -80".
+    var bandLabels: (excellent: String, good: String, poor: String) {
+        let number = { (value: Double) in value.formatted(.number.precision(.fractionLength(0...1))) }
+        return ("Excellent ≥ \(number(excellent))", "Good ≥ \(number(good))", "Poor < \(number(good))")
+    }
+
     /// Widens the default range just enough to keep every reading visible.
     func domain(including values: [Double]) -> ClosedRange<Double> {
         guard let low = values.min(), let high = values.max() else { return base }

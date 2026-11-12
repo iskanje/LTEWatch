@@ -160,10 +160,6 @@ struct HistoryView: View {
     }
     private var signalScale: SignalScale { SignalScale.of(signalMetric) }
     private var signalDomain: ClosedRange<Double> { signalScale.domain(including: idle.compactMap { signal($0) }) }
-    private func thresholdLabel(_ value: Double) -> String {
-        let number = value.formatted(.number.precision(.fractionLength(0...1)))
-        return value == signalScale.excellent ? "Excellent ≥ \(number)" : "Good ≥ \(number)"
-    }
     private func segments(_ key: (Sample) -> Double?) -> [(Sample, Int)] {
         var series = 0
         var previous: Date?
@@ -232,6 +228,11 @@ struct HistoryView: View {
                         Picker("LTE measurement", selection: $signalMetric) { Text("Strength").tag("RSRP"); Text("Quality").tag("RSRQ"); Text("Signal-to-Noise").tag("SNR") }
                             .labelsHidden().pickerStyle(.segmented).frame(width: 300)
                     }
+                    HStack {
+                        Spacer()
+                        let labels = signalScale.bandLabels
+                        legend(labels.excellent, .green); legend(labels.good, .green.opacity(0.4)); legend(labels.poor, .orange.opacity(0.6))
+                    }.opacity(showThresholds ? 1 : 0)
                     Chart {
                         // Threshold bands sit behind the readings: excellent, good, poor.
                         let scale = signalScale, domain = signalDomain, start = cutoff, end = Date()
@@ -255,13 +256,11 @@ struct HistoryView: View {
                         }
                     }.chartXScale(domain: cutoff...Date()).chartYScale(domain: signalDomain).chartXAxis { timeAxis }
                         .chartYAxis {
+                            AxisMarks(position: .trailing)
                             if showThresholds {
-                                AxisMarks(position: .trailing, values: [signalScale.excellent, signalScale.good]) { value in
+                                AxisMarks(values: [signalScale.excellent, signalScale.good]) { _ in
                                     AxisGridLine(stroke: StrokeStyle(lineWidth: 0.75, dash: [3, 3]))
-                                    AxisValueLabel { if let v = value.as(Double.self) { Text(thresholdLabel(v)) } }
                                 }
-                            } else {
-                                AxisMarks(position: .trailing)
                             }
                         }
                         .chartOverlay { proxy in MeasurementTooltips(proxy: proxy, points: signalPoints) }

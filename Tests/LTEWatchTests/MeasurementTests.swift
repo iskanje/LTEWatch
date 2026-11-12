@@ -98,6 +98,10 @@ final class MeasurementTests {
         checkTrue(wide.contains(-140) && wide.contains(-45), "Out-of-range readings must stay visible")
         checkEqual(SignalScale.of("SNR").good, 4.5)
         checkEqual(SignalScale.of("RSRQ").unit, "dB")
+        let labels = rsrp.bandLabels
+        checkTrue(labels.excellent.hasPrefix("Excellent ≥ ") && labels.excellent.hasSuffix("80"), labels.excellent)
+        checkTrue(labels.good.hasPrefix("Good ≥ ") && labels.good.hasSuffix("90"), labels.good)
+        checkEqual(labels.poor, labels.good.replacingOccurrences(of: "Good ≥", with: "Poor <"))
     }
     func testScheduleResumesOnLaunchWithoutBurst() {
         let now = Date(timeIntervalSince1970: 1_700_000_000)
