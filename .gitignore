@@ -1,0 +1,12 @@
+# Build output and caches
+.build/
+work/
+.swiftpm/
+*.xcodeproj/xcuserdata/
+DerivedData/
+
+# Built app and release archives
+dist/
+
+# macOS
+.DS_Store
